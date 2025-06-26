@@ -69,3 +69,21 @@ SELECT `name`,
 		 #현재 행의 키와 **이전**  n번째 행의 키의 차이를 구한다
 		 height - LAG(height, 1) OVER(ORDER BY height DESC) AS 'sub'
 FROM usertbl;
+
+#키 순서 정렬 후 가장 키가 큰 사람과의 키 차이 조회
+SELECT `name`,
+		 addr,
+		 height,
+		 ROW_NUMBER() OVER(ORDER BY height DESC),
+		 FIRST_VALUE(height) OVER(ORDER BY height DESC) - height
+FROM usertbl;
+
+#지역별로 가장 키가ㅏ 큰 사람과의 키 차이 조회
+SELECT `name`,
+		 addr,
+		 height,
+		 ROW_NUMBER() OVER(ORDER BY height DESC),
+		 FIRST_VALUE(height) OVER(partition by addr ORDER BY height DESC) - height
+FROM usertbl;
+
+
