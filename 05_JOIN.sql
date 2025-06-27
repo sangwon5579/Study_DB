@@ -137,13 +137,13 @@ SELECT e.emp_name,
 FROM employee e
 	  INNER JOIN job j ON e.job_code = j.job_code
 	  INNER JOIN department d ON e.dept_code=d.dept_id
-WHERE e.emp_no LIKE '7%' AND SUBSTRING(e.emp_no, 8, 1) = 2 AND e.emp_name LIKE '전%';
+WHERE e.emp_no LIKE '7%' AND SUBSTRING(e.emp_no, 8, 1) IN ('2', '4') AND e.emp_name LIKE '전%';
 
 
 -- 각 부서별 평균 급여를 조회하여 부서명, 평균 급여를 조회
 -- 단, 부서 배치가 안된 사원들의 평균도 같이 나오게끔 조회해 주세요.
-SELECT d.dept_title,
-		 AVG(e.salary)
+SELECT IFNULL(d.dept_title, '부서 없음'),
+		 FLOOR(AVG(e.salary))
 FROM employee e LEFT OUTER JOIN department d ON e.dept_code = d.dept_id
 GROUP BY d.dept_title;
 
@@ -152,7 +152,8 @@ SELECT d.dept_title,
 		 SUM(e.salary)
 FROM employee e RIGHT OUTER JOIN department d ON e.dept_code = d.dept_id
 GROUP BY d.dept_title
-HAVING SUM(e.salary) >= 10000000;
+HAVING SUM(e.salary) >= 10000000
+ORDER BY SUM(e.salary) DESC;
 
 -- 해외영업팀에 근무하는 직원들의 직원명, 직급명, 부서 코드, 부서명을 조회
 SELECT e.emp_name,
@@ -183,10 +184,12 @@ SELECT e.emp_id,
 		 n.national_name,
 		 s.sal_level
 FROM employee e 
-	  INNER JOIN department d ON e.dept_code = d.dept_id
-	  INNER JOIN location l ON d.location_id = l.local_code
-	  INNER JOIN national n ON l.national_code = n.national_code
-	  INNER JOIN sal_grade s ON e.salary BETWEEN s.min_sal AND s.max_sal;
+	  LEFT OUTER JOIN department d ON e.dept_code = d.dept_id
+	  LEFT OUTER JOIN location l ON d.location_id = l.local_code
+	  LEFT OUTER JOIN national n ON l.national_code = n.national_code
+	  LEFT OUTER JOIN sal_grade s ON e.salary BETWEEN s.min_sal AND s.max_sal;
+#부서가 없는 인원들도 같이 출력하여 등급을 확인하기 위해 left outer join 을 사용
+#부서가 없으면 지역명, 국가명도 없기에 제일 위만 left outer join을 하는 것이 아니라 아래것들도 모두 left outer join 한다
 
 -- 부서가 있는 직원들의 직원명, 직급명, 부서명, 지역명을 조회하시오.
 SELECT e.emp_name,
@@ -207,6 +210,57 @@ FROM employee e
 	  INNER JOIN department d ON e.dept_code = d.dept_id
 	  INNER JOIN location l ON d.location_id = l.local_code
 	  INNER JOIN national n ON l.national_code = n.national_code
-WHERE n.national_name = '한국' OR n.national_name = '일본';
+WHERE n.national_name IN ('한국', '일본');
 
+#union
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE dept_code = 'D5'; 
+#6개의 행
 
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE salary > 3000000;
+#8개의 행
+
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE dept_code = 'D5'
+
+UNION 
+
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE salary > 3000000;
+#12개의 행. 중복 제거
+#UNION은 잘 사용하지 않는다. where절의 or을 사용해서 더욱 간편하게 대체 가능하다.
+
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE dept_code = 'D5'
+
+UNION ALL 
+
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE salary > 3000000;
+#14개의 행. 중복 포함
+#UNION ALL은 UNION과 달리 대체할 수 있는 방법이 없다. 
