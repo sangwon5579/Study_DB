@@ -26,16 +26,105 @@ WHERE dept_code = (SELECT dept_code
 #서브쿼리 구분
 #서브쿼리는 서브쿼리를 수행한 결과값의 행과 열의 개수에 따라서 분류할 수 있다.
 #1) 단일행 서브 쿼리
+-- 서브쿼리의 조회 결과값의 개수가 1개일 때
+-- 직원의 평균 급여보다 더 많은 급여를 받고 있는 직원들의 사번, 직원명, 직급 코드, 급여를 조회
+SELECT emp_no,
+		 emp_name,
+		 dept_code,
+		 salary
+FROM employee
+WHERE salary >= (SELECT AVG(salary)
+					 FROM employee);
+#2) 노옹철 사원의 급여보다 더 많이 받는 사원의 사번, 직원명, 부서명, 급여 조회
+SELECT e.emp_id,
+		 e.emp_name,
+		 d.dept_title,
+		 e.salary
+FROM employee e INNER JOIN department d ON e.dept_code = d.dept_id
+WHERE e.salary > (SELECT salary
+						 FROM employee
+						 WHERE emp_name = '노옹철');
+					 
 #2) 다중행 서브쿼리
+#서브쿼리의 조회 결과값의 개수가 여러 행일때
+#각 부서별 최고 급여를 받는 직원의 이름, 직급 코드, 부서 코드, 급여 조회
+SELECT emp_name,
+		 job_code,
+		 dept_code,
+		 salary 
+FROM employee
+WHERE salary IN (SELECT MAX(salary)
+					  FROM employee
+					  GROUP BY dept_code
+					  HAVING dept_code IS NOT NULL)
+ORDER BY dept_code;
+
+#직원들의 사번, 직원명, 부서코드, 구분값(일반사원/사수) 조회
+SELECT emp_id AS '사번',
+		 emp_name AS '직원명',
+		 dept_code AS '부서코드',
+		 CASE
+		 	WHEN emp_id IN (SELECT DISTINCT manager_id
+								 FROM employee
+								 WHERE manager_id IS NOT NULL) THEN '사수'
+			ELSE '부사수'
+		 END AS '구분'
+FROM employee;
+
+#대리(job_name) 직급인데 과장 직급들의 최소급여보다 급여가 높은 대리들을 찾기. 사번, 이름, 직급, 급여 조회
+SELECT e.emp_id,
+		 e.emp_name,
+		 j.job_name,
+		 j.job_code,
+		 e.salary
+FROM employee e INNER JOIN job j ON e.job_code = j.job_code
+WHERE j.job_name = '대리'
+		AND e.salary > (SELECT MIN(salary)
+							FROM employee e INNER JOIN job j ON e.job_code = j.job_code
+							WHERE j.job_name = '과장');
+							
+#AND salary > ANY(서브쿼리) 
+#ANY 연산자는 하나라도 참이라면 참이됨.
+#값을그대로 쓰는 것을 허용하지 않는다. 안에 서브쿼리를 넣는 방법 가능
+#서브쿼리의 결과 중 하나라도 조건을 만족하면 참을 반환한다
+SELECT e.emp_id,
+		 e.emp_name,
+		 j.job_name,
+		 j.job_code,
+		 e.salary
+FROM employee e INNER JOIN job j ON e.job_code = j.job_code
+WHERE j.job_name = '대리'
+		AND e.salary > ANY (SELECT salary
+							FROM employee e INNER JOIN job j ON e.job_code = j.job_code
+							WHERE j.job_name = '과장');
+
+#과장직급임에도 차장직급의 최대 급여보다 더 많이 받는 
+#직원의 사번, 이름, 직급코드, 급여조회
+SELECT emp_id,
+		 emp_name,
+		 job_code,
+		 salary
+FROM employee
+WHERE job_code ='J5'
+		AND salary > (SELECT max(salary)
+						  FROM employee
+						  WHERE job_code = 'J4');
+
+#AND salary > AlL(...)
+#모든 조건을 만족시켜야함
+#서브쿼리의 결과 모두가 조건을 만족하면 참이된다.	
+SELECT emp_id,
+		 emp_name,
+		 job_code,
+		 salary
+FROM employee
+WHERE job_code ='J5'
+		AND salary > ALL(SELECT salary
+						  FROM employee
+						  WHERE job_code = 'J4');		
 #3) 다중열 서브쿼리
 #4) 다중행, 다중열 서브쿼리
 
-						 
-						 
-						 
-						 
-						 
-						 
 						 
 						 
 						 
