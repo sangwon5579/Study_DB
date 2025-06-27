@@ -214,16 +214,41 @@ SELECT emp_id,
 		 job_code,
 		 salary
 FROM employee
-WHERE (job_code, saraly) IN (SELECT job_code, 
+WHERE (job_code, salary) IN (SELECT job_code, 
 												MIN(salary)
 									  FROM employee
 									  GROUP BY job_code)
 ORDER BY job_code;
 
+#인라인 뷰
+#from절에 서브쿼리를 작성하고
+#서브쿼리를 수행한 결과를 테이블 대신에 사용
+SELECT emp.사번,
+		 emp.이름,
+		 emp.급여,
+		 emp.연봉
+FROM(
+		SELECT emp_id AS '사번',
+		 		emp_name AS '이름',
+		 		salary AS '급여',
+		 		salary*12 AS '연봉'
+	  	FROM employee
+	  ) emp;
+##view는 root계정으로 들어가면 user가 있음. 여기서 확인가능
+##from절에 테이블 대신 서브쿼리 작성. 이 서브쿼리의 결과를 테이블로 사용.
 
-
-
-
+#employee 테이블에서 급여로 순위를 매겨서 출력
+SELECT emp.순위,
+		 emp.이름,
+		 emp.급여
+FROM (
+		SELECT emp_name AS '이름', 
+				 RANK() OVER(ORDER BY salary DESC) AS '순위',
+				 salary AS '급여'
+		FROM employee
+	  ) emp
+WHERE emp.순위 > 10 AND emp.순위 <= 20;
+#위와 같이 rank에 대해서 조건을 주는 것이 가능해진다.
 
 
 
