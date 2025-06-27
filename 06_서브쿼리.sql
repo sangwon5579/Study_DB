@@ -122,10 +122,111 @@ WHERE job_code ='J5'
 		AND salary > ALL(SELECT salary
 						  FROM employee
 						  WHERE job_code = 'J4');		
-#3) 다중열 서브쿼리
-#4) 다중행, 다중열 서브쿼리
+						  
+#testtbl 내부의 테이블을 이용하여 한번이라도 구매한 적이 있는 회원의 아이디, 이름, 주소 조회
+SELECT u.userID,
+		 u.`name`,
+		 u.addr
+FROM usertbl u
+WHERE u.userID IN (SELECT b.userID
+						 FROM buytbl u INNER JOIN buytbl b ON u.userID = b.userID 
+						 WHERE b.prodName IS NOT NULL);
 
+SELECT u.userID,
+		 u.`name`,
+		 u.addr
+FROM usertbl u
+WHERE EXISTS(SELECT *
+				 FROM buytbl b
+				 WHERE b.userid = u.userid);
+#exist() 연산자는 서브쿼리의 결과가 한 건이라도 존재하면 참이된다.				 
+
+SELECT DISTINCT u.userID,
+		 u.`name`,
+		 u.addr
+FROM usertbl u INNER JOIN buytbl b ON u.userID = b.userID;		 
+
+#3) 다중열 서브쿼리
+#서브쿼리의 조회 결과 값은 한 행이지만 열의 수가 여러개일떄
+
+#하이유 사원과 같은 부서 코드, 같은 직급 코드에 해당하는 사원들을 조회
+SELECT emp_name,
+		dept_code,
+		job_code
+FROM employee
+WHERE (dept_code, job_code) IN (SELECT dept_code,
+		 											job_code 
+									      FROM employee
+											WHERE emp_name = '하이유'); #다중행, 다중열 서브쿼리
+
+#박나라 사원과 직급 코드가 일치하면서 같은 사수를 가지고 있는 
+#사원들의 사번, 직원명, 직급코드, 사수 사번 조회
+SELECT emp_id,
+		 emp_name,
+		 dept_code,
+		 manager_id
+FROM employee
+WHERE (dept_code, manager_id) IN (SELECT dept_code,
+													 manager_id
+											FROM employee
+											WHERE emp_name = '박나라')
+		AND emp_name != '박나라';					 
 						 
 						 
-						 
-						 
+#4)다중행, 다중열 서브쿼리
+#서브쿼리의 조회 결과값이 여러 행, 여러 열일 경우
+
+#각 부서별 최고 급여를 받는 직원의 사번, 직원명, 부서코드, 급여 조회
+SELECT dept_code,
+		 max(salary)
+FROM employee
+GROUP BY dept_code;
+
+SELECT emp_id,
+		 emp_name,
+		 IFNULL(dept_code, '부서없음'),
+		 salary	
+FROM employee
+WHERE (IFNULL(dept_code, '부서없음'), salary) IN (SELECT IFNULL(dept_code, '부서없음'),
+																			 max(salary)
+																	FROM employee
+																	GROUP BY dept_code)
+ORDER BY dept_code;		
+#null을 포함하기위한 IFNULL 처리. 3군데에 사용.
+
+#각 부서별 최소 급여를 받는 사원들의 사번, 이름, 부서코드, 급여조회
+SELECT emp_id,
+		 emp_name,
+		 IFNULL(dept_code, '부서없음'),
+		 salary
+FROM employee
+WHERE (IFNULL(dept_code, '부서없음'), salary) IN (SELECT IFNULL(dept_code, '부서없음'), 
+																			MIN(salary)
+																  FROM employee
+																  GROUP BY dept_code)
+ORDER BY dept_code;
+
+
+
+#각 직급별 최소 급여를 받는 사원들의 사번, 이름 , 직급 코드, 급여 조회
+SELECT emp_id,
+		 emp_name,
+		 job_code,
+		 salary
+FROM employee
+WHERE (job_code, saraly) IN (SELECT job_code, 
+												MIN(salary)
+									  FROM employee
+									  GROUP BY job_code)
+ORDER BY job_code;
+
+
+
+
+
+
+
+
+
+
+			 
