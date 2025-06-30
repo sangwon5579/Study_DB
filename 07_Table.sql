@@ -1,4 +1,4 @@
-#테이블 생성
+#테이블 생성 practice
 #회원에 대한 데이터를 담을 수 있는 tb_memeber 테이블 생성
 CREATE TABLE `tb_member`(
 	`mem_no` INT,
@@ -219,4 +219,7 @@ INSERT INTO tb_member (mem_id, mem_pass, mem_name, gender, age, grade_code) VALU
 
 UPDATE tb_member SET gender = '길동'
 WHERE mem_name = '홍길동';
+
+
+
 
