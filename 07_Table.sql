@@ -136,7 +136,60 @@ INSERT INTO tb_member_grade VALUES ('vip', 'vip 회원');
 INSERT INTO tb_member_grade VALUES ('gold', 'gold 회원');
 INSERT INTO tb_member_grade VALUES ('silver', 'silver 회원');
 
+#자식테이블 생성
+CREATE TABLE `tb_member`(
+	`mem_no` INT AUTO_INCREMENT PRIMARY KEY,
+	`mem_id` VARCHAR(20) NOT NULL UNIQUE,
+	`mem_pass` VARCHAR(20) NOT NULL,
+	`mem_name` varchar(10) NOT NULL,
+	`grade_code` VARCHAR(10) REFERENCES `tb_member_grade`,
+	`enroll_date` DATE DEFAULT CURDATE()
+);
 
+CREATE TABLE `tb_member`(
+	`mem_no` INT AUTO_INCREMENT PRIMARY KEY,
+	`mem_id` VARCHAR(20) NOT NULL UNIQUE,
+	`mem_pass` VARCHAR(20) NOT NULL,
+	`mem_name` varchar(10) NOT NULL,
+	`grade_code` VARCHAR(10) REFERENCES `tb_member_grade`(`grade_code`),
+	`enroll_date` DATE DEFAULT CURDATE()
+);
 
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, grade_code) VALUES ('user2', '1234', '홍길동', 'vip');
 
+#tb_member_grade 테이블의 grade_code 열에
+#bronze라는 값이 없어서 외래 키 제약 조건에 위배되어 에러가 발생한다.
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, grade_code) VALUES ('user2', '1234', '이몽룡', 'bronze');
+
+#grade_code 열에 null 삽입 가능
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, grade_code) VALUES ('user4', '1234', '성춘향', NULL);
+
+#join해서 회원번호, 아이디, 이름, 게정 등급을 조회
+SELECT m.mem_no,
+		 m.mem_id,
+		 m.mem_name,
+		 mb.grade_name
+FROM tb_member m LEFT OUTER JOIN tb_member_grade mb ON m.grade_code = mb.grade_code;
+
+#SELECT *
+DELETE
+FROM tb_member_grade
+WHERE grade_code = 'vip';
+#delete 불가능
+
+UPDATE tb_member_grade SET grade_code = 'vvip'
+WHERE grade_code = 'vip';
+#update 불가능
+
+DELETE
+FROM tb_member_grade
+WHERE grade_code = 'gold';
+#이건 삭제됨. 참조하고 있는 행이 없으면 제거/수정 가능하다.
+UPDATE tb_member_grade SET grade_code = 'vvip'
+WHERE grade_code = 'silver';
+
+#cascade로 설정해놓으면 부모-자식 모두 종속적으로 삭제/수정 됨
+#테이블 -> update/delete 될 때 ,  에서 수정가능
+UPDATE tb_member_grade SET grade_code = 'vvip'
+WHERE grade_code = 'vip';
 
