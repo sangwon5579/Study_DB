@@ -193,3 +193,30 @@ WHERE grade_code = 'silver';
 UPDATE tb_member_grade SET grade_code = 'vvip'
 WHERE grade_code = 'vip';
 
+#check 제약 조건
+DROP TABLE tb_member;
+
+CREATE TABLE `tb_member`(
+	`mem_no` INT AUTO_INCREMENT PRIMARY KEY,
+	`mem_id` VARCHAR(20) NOT NULL UNIQUE,
+	`mem_pass` VARCHAR(20) NOT NULL,
+	`mem_name` varchar(10) NOT NULL,
+	`gender` CHAR(2) CHECK(gender IN ('남자', '여자')),
+	`age` TINYINT,
+	`grade_code` VARCHAR(10) REFERENCES `tb_member_grade`,
+	`enroll_date` DATE DEFAULT CURDATE(),
+	#CHECK(`age` >= 0) -- or
+	#CONSTRAINT ck_member_age CHECK(`age` >= 0 and `age` <=150) --or
+	CONSTRAINT ck_member_age CHECK(`age` BETWEEN 0 AND 120) 
+);
+
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, gender, age, grade_code) VALUES ('user1', '1234', '홍길동','남자', 24, 'vip');
+
+#성별/나이에 유효하지 않은 값들은 저장이 불가능하다
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, gender, age, grade_code) VALUES ('user2', '1234', '이몽룡','몽룡', 25, NULL);
+
+INSERT INTO tb_member (mem_id, mem_pass, mem_name, gender, age, grade_code) VALUES ('user3', '1234', '성춘향','여자', -3, 'silver');
+
+UPDATE tb_member SET gender = '길동'
+WHERE mem_name = '홍길동';
+
