@@ -123,7 +123,7 @@ FROM v_employee;
 #선동일 사원의 급여를 200만원/400만원으로 변경 -->조건에 부합하는 것만 변경 가능
 UPDATE v_employee
 SET salary = 2000000
-WHERE emp_id = '200'; #error
+WHERE emp_id = '200'; #erroremployees_dbemployees_dbemployees_dbemployees_db
 
 UPDATE v_employee
 SET salary = 4000000
