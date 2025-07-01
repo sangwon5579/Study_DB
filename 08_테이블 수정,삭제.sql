@@ -81,15 +81,47 @@ ALTER TABLE tb_member ADD CONSTRAINT uq_tb_member_mem_id UNIQUE(mem_id);
 ALTER TABLE tb_member ADD grade_code VARCHAR(10) AFTER mem_name;
 ALTER TABLE tb_member ADD CONSTRAINT fk_tb_member_grade_code FOREIGN KEY(grade_code) REFERENCES tb_member_grade(grade_code);
 
+#check 제약 조건
+ALTER TABLE tb_member ADD gender CHAR(2) AFTER mem_name;
+ALTER TABLE tb_member ADD CONSTRAINT CHECK(gender = '남자' OR gender = '여자');
 
+ALTER TABLE tb_member ADD age TINYINT AFTER gender;
+ALTER TABLE tb_member ADD CONSTRAINT ck_tb_member_age CHECK(age BETWEEN 0 AND 120);
 
+#employee 테이블에서 emp_id 열에 pk 제약조건 추가
+ALTER TABLE employee ADD CONSTRAINT PRIMARY KEY(emp_id);
 
+#employee 테이블에서 emp_no 열에 unique 제약조건  추가
+ALTER TABLE employee ADD CONSTRAINT uq_employee_emp_no UNIQUE(emp_no);
 
+#employee 테이블에서 dept_code열에 fk 제약 조건 추가
+ALTER TABLE employee ADD CONSTRAINT fk_employee_dept_code FOREIGN KEY(dept_code) REFERENCES department(dept_id);
 
+#employee 테이블에서 job_code 열에 외래키 제약 조건 추가
+ALTER TABLE employee ADD CONSTRAINT fk_employee_job_code FOREIGN KEY(job_code) REFERENCES job(job_code);
 
+#department 테이블에서 location_id 열에 fk 제약 조건 추가
+ALTER TABLE department ADD CONSTRAINT fk_department_location_id FOREIGN KEY(location_id) REFERENCES location(local_code);
 
+#location 테이블에서 national_code 열에 fk 제약 조건 추가
+ALTER TABLE location ADD CONSTRAINT fk_location_national_code FOREIGN KEY(national_code) REFERENCES national(national_code);
 
+#2) 제약 조건 삭제
+#pk 말고는 제약 조건 이름 확인 후 제약 조건 이름으로 삭제!!!
+#pk 제약 조건 삭제
+ALTER TABLE tb_member DROP CONSTRAINT PRIMARY KEY;
+#default auto_increment 먼저 삭제. 숫자가 증가하니깐
+ALTER TABLE tb_member MODIFY mem_no INT;
 
+#unique 제약 조건 삭제
+ALTER TABLE tb_member DROP CONSTRAINT uq_tb_member_mem_id;
+#제약조건 이름으로 삭제
 
+#fk 제약 조건 삭제
+ALTER TABLE tb_member DROP CONSTRAINT fk_tb_member_grade_code;
+
+#check 제약 조건 삭제
+ALTER TABLE tb_member DROP CONSTRAINT CONSTRAINT_1;
+ALTER TABLE tb_member DROP CONSTRAINT ck_tb_member_age;
 
 
