@@ -124,4 +124,14 @@ ALTER TABLE tb_member DROP CONSTRAINT fk_tb_member_grade_code;
 ALTER TABLE tb_member DROP CONSTRAINT CONSTRAINT_1;
 ALTER TABLE tb_member DROP CONSTRAINT ck_tb_member_age;
 
+#3. 테이블 이름 변경
+RENAME TABLE usertbl TO usertbl_rename;
 
+#4. 테이블 삭제
+DROP TABLE tb_member_grade; #fk 제약 조건 때문에 삭제 불가능
+#참조되고 있는 테이블은 삭제 불가능
+#자식 테이블부터 삭제는 가능
+#외래키 제약 조건을 삭제하고 나서 삭제해도 가능
+
+#자식 테이블 먼저 삭제 후 부모 테이블 삭제
+DROP TABLE tb_member, tb_member_grade;
