@@ -144,3 +144,4 @@ DROP PROCEDURE errorProc;
 DROP PROCEDURE gradeProc;
 DROP PROCEDURE sumProc;
 DROP PROCEDURE test_db.userProc;
+DROP PROCEDURE userProc;
